@@ -20,7 +20,7 @@ def test_chat():
     r = httpx.post(
         f"{BASE_URL}/api/chat",
         headers=headers,
-        json={"message": "What is Prisma used for?"},
+        json={"message": "whats the date today"},
         timeout=60,
     )
     print("chat:", r.status_code, r.json())
