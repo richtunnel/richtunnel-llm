@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Frontend (frontend/dist is already covered by dist/ above)
+frontend/node_modules/

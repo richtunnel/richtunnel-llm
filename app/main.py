@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from scalar_fastapi import get_scalar_api_reference
 from scalar_fastapi.scalar_fastapi import Layout, Theme
 
@@ -50,6 +53,22 @@ nav button,
 nav a {
   transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease !important;
 }
+
+/* Drop the "Powered by Scalar" sidebar footer link (and its now-empty
+   wrapper, so it doesn't leave a blank gap below the MCP buttons). */
+div:has(> a[href="https://www.scalar.com"]) {
+  display: none !important;
+}
+
+/* Scalar's collapsed-tag "Show More" button pulls itself up 48px (relative
+   positioning) to sit inside its section's default 48px bottom padding.
+   We shrank that padding above, so the button now floats up over whatever
+   card sits above it instead of below it. Drop the offset so it sits in
+   normal flow. */
+.show-more {
+  top: 0 !important;
+  margin-top: 8px;
+}
 """
 
 
@@ -64,6 +83,7 @@ def docs():
         force_dark_mode_state="dark",
         hide_client_button=True,
         telemetry=False,
+        show_developer_tools="never",
         custom_css=_DOCS_CUSTOM_CSS,
     )
 
@@ -71,3 +91,9 @@ def docs():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+# Chat UI — built via `npm run build` in frontend/. Mounted last so it only
+# catches requests that don't match /api, /docs, or /health above.
+_FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+app.mount("/", StaticFiles(directory=_FRONTEND_DIST, html=True), name="frontend")

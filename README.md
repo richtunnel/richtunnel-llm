@@ -36,7 +36,33 @@ cp .env.example .env           # edit if you want a different model or API key
 uvicorn app.main:app --reload --port 8000
 ```
 
-## 4. Test it
+## 4. Build the chat UI
+
+The API serves a small React chat interface (streaming plain chat + an
+agent-mode toggle) as static files, so it needs a build before the server can
+find them:
+
+```bash
+cd frontend
+npm install
+npm run build     # outputs to frontend/dist, which app/main.py serves at "/"
+cd ..
+```
+
+During frontend development, run `npm run dev` inside `frontend/` instead —
+it starts a Vite dev server on `:5173` that proxies `/api` to `:8000`, so you
+get hot reload without rebuilding.
+
+## 5. Run the API
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+Open `http://localhost:8000/` for the chat UI (enter your `x-api-key` from
+`.env` in Settings), or `http://localhost:8000/docs` for the API reference.
+
+## 6. Test it
 
 In a second terminal:
 ```bash
@@ -65,7 +91,7 @@ curl -N -X POST http://localhost:8000/api/chat/stream \
 
 ```
 app/
-├── main.py          # FastAPI app + router registration
+├── main.py          # FastAPI app + router registration + chat UI static mount
 ├── config.py        # settings (model name, Ollama URL, API key) from .env
 ├── models.py        # request/response schemas
 ├── llm.py           # ChatOllama client factory
@@ -74,6 +100,9 @@ app/
 └── routes/
     ├── chat.py      # /api/chat and /api/chat/stream
     └── agent.py     # /api/agent/chat
+frontend/
+├── src/App.jsx      # chat UI: mode toggle, streaming, markdown rendering
+└── dist/            # built assets served by FastAPI at "/" (gitignored)
 ```
 
 ## Where to extend this
